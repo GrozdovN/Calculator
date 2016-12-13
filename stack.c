@@ -1,48 +1,53 @@
-#pragma once
+//#pragma once
 #include "stack.h"
 
 
 
-struct stack stack_new()
+struct Stack Stack_new()
 {
-	struct stack s = {NULL};
+	struct Stack s = {NULL};
 	return s;
 }
 
-bool stack_empty(struct stack s)
+bool Stack_empty(struct Stack *s)
 {
-	return (s.top == NULL) ? true : false;
+	return (s->top == NULL) ? true : false;
 }
 
-val_t stack_top(struct stack *s)
+val_t * Stack_top(struct Stack *s)
 {
-	return s->top->val;
+	if (s->top == NULL)
+	{
+		return NULL;
+	}
+	return &(s->top->val);
 }
 
-void stack_push(struct stack *s, val_t v)
+void Stack_push(struct Stack *s, val_t v)
 {
-	struct stack__node *node = (struct stack__node *) malloc(sizeof(struct stack__node));
+	struct Stack_Node *node = (struct Stack_Node *) malloc(sizeof(struct Stack_Node));
 	node->val = v;
 	node->prev = s->top;
 	s->top = node;
 	return;
 }
-
-void stack_pop(struct stack *s)
+void Stack_pop(struct Stack *s)
 {
-	//bigInt_delete(s.top->val)
-	if (s->top == NULL) return;
-	struct stack__node *prev = s->top->prev;
+	if (s->top == NULL)
+	{
+		return;
+	}
+	struct Stack_Node *prev = s->top->prev;
 	free(s->top);
 	s->top = prev;
 	return;
 }
 
-void stack_delete(struct stack *s)
+void Stack_delete(struct Stack *s)
 {
 	while (s->top != NULL)
 	{
-		stack_pop(s);
+		Stack_pop(s);
 	}
 	return;
 }

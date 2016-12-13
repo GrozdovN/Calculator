@@ -1,22 +1,101 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "stack.h"
+
+
+val_t * getArgs(struct Stack *s, val_t *second)
+{
+	if (!Stack_empty(s))
+	{	
+		val_t buf = *Stack_top(s);
+		Stack_pop(s);
+		if (!Stack_empty(s))
+		{
+			*second = buf;
+			return Stack_top(s);
+		}
+		Stack_push(s, buf);
+	}
+	fprintf(stderr, "err: empty stack.\n");	
+	return NULL;
+}
 
 
 int main()
 {
-	struct stack s = stack_new();	
-	for (int i = 0; i < 10; ++i)
+	struct Stack s = Stack_new();	
+	
+	int oper, sign = 1;
+	val_t *first, second;
+	do
 	{
-		stack_push(&s, i);
-		printf("%d\n", stack_top(&s));
+		oper = getc(stdin);
+		switch (oper) 
+		{
+			case '+' :	if((first = getArgs(&s, &second)) != NULL)
+						{
+							*first += second;
+						}
+						break;
+			
+			case '*' :	if((first = getArgs(&s, &second)) != NULL)
+						{
+							*first *= second;
+						}
+						break;
+			
+			case '/' :	if((first = getArgs(&s, &second)) != NULL)
+						{
+							*first /= second;
+						}
+						break;
+			
+			case '=' :	if (!Stack_empty(&s))
+						{
+							printf("%d\n", *Stack_top(&s));
+						}
+						break;
+			
+			case '-' :	oper = getc(stdin);
+						if(!('0' <= oper && oper <= '9'))
+						{
+							ungetc(oper, stdin);
+							if ((first = getArgs(&s, &second)) != NULL)
+							{
+								*first -= second;
+							}
+						}
+						else
+						{
+							sign = -1;
+						}
+			
+			default :	if ('0' <= oper && oper <= '9')
+						{
+							ungetc(oper, stdin);
+							int a;
+							scanf("%d", &a);
+							a *= sign;
+							sign = 1;
+							Stack_push(&s, a);
+						}
+		}
+	}
+	while (oper != EOF);
+	
+	
+	while (!Stack_top(&s))
+	{
+		//BigNum_delete(*Stack_top(&s));
+		Stack_pop(&s);
 	}
 	
-	stack_pop(&s);
-	printf("%d\n", stack_top(&s));
-	
-	
-	stack_delete(&s);	
-	printf("%d\n", s.top);
-	
+		
 	return 0;
 }
+
+
+
+
+
+

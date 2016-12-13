@@ -1,26 +1,27 @@
 #pragma once
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 typedef int val_t;
 
-struct stack__node 
+struct Stack_Node 
 {
 	val_t val;
-	struct stack__node *prev;
+	struct Stack_Node *prev;
 };
 
-struct stack
+struct Stack
 {
-	struct stack__node *top;
+	struct Stack_Node *top;
 };
 
 
-struct stack stack_new();
-void stack_delete(struct stack *);
+struct Stack Stack_new();
+void Stack_delete(struct Stack *);
 
-bool stack_empty(struct stack);
+bool Stack_empty(struct Stack *);
 
-val_t stack_top(struct stack *);
-void stack_push(struct stack *, val_t);
-void stack_pop(struct stack *);
+val_t * Stack_top(struct Stack *);
+void Stack_push(struct Stack *, val_t);
+void Stack_pop(struct Stack *);
