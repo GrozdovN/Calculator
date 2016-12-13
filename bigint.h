@@ -1,9 +1,12 @@
 #pragma once
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 
+
 typedef unsigned long digit_t;
 typedef unsigned long long length_t;
+const digit_t base = 1000000000;
 
 
 struct BigInt_Node
@@ -21,7 +24,7 @@ struct BigInt
 
 
 
-struct BigInt BigInt_new();
+struct BigInt * BigInt_new();
 void BigInt_delete(struct BigInt *);
 
 void BigInt_read(struct BigInt *);

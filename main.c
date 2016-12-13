@@ -26,6 +26,10 @@ int main()
 {
 	struct Stack s = Stack_new();	
 	
+	//struct BigInt *num = BigInt_new();
+	//BigInt_delete(num);
+	
+	
 	int oper, sign = 1;
 	val_t *first, second;
 	do
@@ -85,7 +89,7 @@ int main()
 	while (oper != EOF);
 	
 	
-	while (!Stack_top(&s))
+	while (!Stack_empty(&s))
 	{
 		//BigNum_delete(*Stack_top(&s));
 		Stack_pop(&s);

@@ -3,9 +3,11 @@
 
 
 
-struct BigInt BigInt_new()
+struct BigInt* BigInt_new()
 {
-	struct BigInt num = { .isPositive = 1, .length = 0, .head = NULL, .tail = NULL};
+	struct BigInt *num = (struct BigInt *) malloc(sizeof(struct BigInt));
+	struct BigInt tmp = { .isPositive = 1, .length = 0, .head = NULL, .tail = NULL};
+	*num = tmp;
 	return num;
 }
 
@@ -13,6 +15,15 @@ struct BigInt BigInt_new()
 
 void BigInt_delete(struct BigInt *number)
 {
+	if (number->tail != NULL)
+	{
+		for (struct BigInt_Node *node = number->head->next; node != NULL; node = node->next)
+		{
+			free(node->prev);
+		}
+		free(number->tail);
+	}
+	free(number);
 	return;
 }
 
