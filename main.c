@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
+#include "bigint.h"
 
 
 val_t * getArgs(struct Stack *s, val_t *second)
