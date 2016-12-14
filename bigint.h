@@ -2,22 +2,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 
 typedef unsigned long digit_t;
 typedef unsigned long long length_t;
-const digit_t base = 1000000000;
+const digit_t BigInt_base;// = 1000000000;
 
 
 struct BigInt_Node
 {
-	digit_t dig;
+	digit_t digit;
 	struct BigInt_Node *prev, *next;
 };
 
 struct BigInt
 {
-	char isPositive;
+	char isNegative;
 	length_t length;
 	struct BigInt_Node *head, *tail;
 };

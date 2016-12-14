@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
+
 #include "stack.h"
 #include "bigint.h"
 
@@ -26,16 +28,22 @@ int main()
 {
 	struct Stack s = Stack_new();	
 	
-	//struct BigInt *num = BigInt_new();
-	//BigInt_delete(num);
+	
+	//printf("%d %d\n", isdigit('0'), isdigit('a'));
+	
+	struct BigInt *num = BigInt_new();
+	BigInt_read(num);
+	BigInt_write(num);
+	//printf("%d\n", num->length);
+	BigInt_delete(num);
 	
 	
-	int oper, sign = 1;
+	int ch, sign = 1;
 	val_t *first, second;
 	do
 	{
-		oper = getc(stdin);
-		switch (oper) 
+		ch = getc(stdin);
+		switch (ch) 
 		{
 			case '+' :	if((first = getArgs(&s, &second)) != NULL)
 						{
@@ -61,10 +69,10 @@ int main()
 						}
 						break;
 			
-			case '-' :	oper = getc(stdin);
-						if(!('0' <= oper && oper <= '9'))
+			case '-' :	ch = getc(stdin);
+						if(!isdigit(ch))
 						{
-							ungetc(oper, stdin);
+							ungetc(ch, stdin);
 							if ((first = getArgs(&s, &second)) != NULL)
 							{
 								*first -= second;
@@ -75,9 +83,9 @@ int main()
 							sign = -1;
 						}
 			
-			default :	if ('0' <= oper && oper <= '9')
+			default :	if (isdigit(ch))
 						{
-							ungetc(oper, stdin);
+							ungetc(ch, stdin);
 							int a;
 							scanf("%d", &a);
 							a *= sign;
@@ -86,7 +94,7 @@ int main()
 						}
 		}
 	}
-	while (oper != EOF);
+	while (ch != EOF);
 	
 	
 	while (!Stack_empty(&s))
