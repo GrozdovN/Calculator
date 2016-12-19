@@ -5,7 +5,7 @@
 #include <ctype.h>
 
 
-typedef unsigned long digit_t;
+typedef long digit_t;
 typedef unsigned long long length_t;
 const digit_t BigInt_base;// = 1000000000;
 

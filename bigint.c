@@ -1,14 +1,68 @@
 //#pragma once
 #include "bigint.h"
 
-
-
 const digit_t BigInt_base = 1000000000;
 
 
 
 
-struct BigInt* BigInt_new()
+
+
+
+struct BigInt_Node * BigInt_pushFront(struct BigInt *number, digit_t digit)
+{
+	struct BigInt_Node	*node = (struct BigInt_Node *) malloc(sizeof(struct BigInt_Node));	
+	node->digit = digit;
+	node->prev = NULL;
+	
+	if (number->head == NULL)
+	{
+		node->next = NULL;
+		number->head = node;
+		number->tail = node;
+	}
+	else
+	{
+		node->next = number->head;
+		number->head->prev = node;
+		number->head = node;
+	}
+	
+	++(number->length);	
+	return node;
+}
+
+
+struct BigInt_Node * BigInt_pushBack(struct BigInt *number, digit_t digit)
+{
+	struct BigInt_Node	*node = (struct BigInt_Node *) malloc(sizeof(struct BigInt_Node));	
+	node->digit = digit;
+	node->next = NULL;
+	
+	if (number->head == NULL)
+	{
+		node->prev = NULL;
+		number->head = node;
+		number->tail = node;
+	}
+	else
+	{
+		node->prev = number->tail;
+		number->tail->next = node;
+		number->tail = node;
+	}
+	
+	++(number->length);	
+	return node;
+}
+
+
+
+
+
+
+
+struct BigInt * BigInt_new()
 {
 	struct BigInt *num = (struct BigInt *) malloc(sizeof(struct BigInt)); 
 	num->isNegative = 0; 
@@ -32,6 +86,9 @@ void BigInt_delete(struct BigInt *number)
 	free(number);
 	return;
 }
+
+
+
 
 
 
@@ -92,22 +149,7 @@ void BigInt_read(struct BigInt *number)
 		char *p;
 		digit_t digit = strtol(buf, &p, 10);		
 		
-		struct BigInt_Node *node = (struct BigInt_Node *) malloc(sizeof(struct BigInt_Node));
-		node->digit = digit;
-		node->next = NULL;
-		if (number->length == 0)
-		{
-			node->prev = NULL;
-			number->head = node;
-			number->tail = node;
-		}
-		else
-		{
-			node->prev = number->tail;
-			number->tail->next = node;
-			number->tail = node;
-		}
-		++(number->length);
+		BigInt_pushBack(number, digit);
 	} 
 	while (!isspace(c));
 	
@@ -140,13 +182,16 @@ void BigInt_write(struct BigInt *number)
 		}
 		for (struct BigInt_Node *node = number->head; node != NULL; )
 		{
-			printf("%lu ", node->digit);
+			printf("%ld ", node->digit);
 			node = node->next;
 		}
 	}
 	putc('\n', stdout);
 	return;
 }
+
+
+
 
 
 
@@ -162,6 +207,8 @@ bool BigInt_lessThan(struct BigInt *left, struct BigInt *right)
 
 void BigInt_add(struct BigInt *number, struct BigInt *increment)
 {	
+		
+	
 	return;
 }
 void BigInt_subtract(struct BigInt *number, struct BigInt *decrement)
