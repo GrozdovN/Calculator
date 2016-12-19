@@ -176,7 +176,7 @@ void BigInt_write(struct BigInt *number)
 {	
 	if (number->head != NULL)
 	{
-		if(number->isNegative && number->head->digit != 0)
+		if(number->isNegative && !(number->head->digit == 0 && number->length == 1))
 		{
 			putc('-', stdout);
 		}
@@ -207,12 +207,72 @@ bool BigInt_lessThan(struct BigInt *left, struct BigInt *right)
 
 void BigInt_add(struct BigInt *number, struct BigInt *increment)
 {	
-		
+	long long	res = 0, carry = 0, 
+				signN = (number->isNegative) ? -1 : 1, 
+				signI = (increment->isNegative) ? -1 : 1;
+	if (signN * signI == 1)
+	{
+		signN = signI = 1;
+	}
+	struct BigInt_Node	*number_node = number->tail, 
+						*increment_node = increment->tail;
+	struct BigInt *nullNumber = BigInt_new();
+	BigInt_pushBack(nullNumber, 0);
 	
+	while (number_node != NULL || increment_node != NULL || carry == 1)
+	{
+		if (increment_node == NULL)
+		{
+			increment_node = nullNumber->head;
+		}
+		if (number_node == NULL)
+		{
+			number_node = BigInt_pushFront(number, 0);
+		}
+		res = signN*(number_node->digit) + signI*(increment_node->digit) + carry;
+		carry = (res + BigInt_base) / BigInt_base - 1;
+		number_node->digit = (res + BigInt_base) % BigInt_base;
+		
+		number_node = number_node->prev;
+		increment_node = increment_node->prev;
+	}
+	
+	if (carry == -1)
+	{
+		number_node = number->head;
+		for ( ;number_node != NULL; number_node = number_node->next)
+		{
+			number_node->digit = BigInt_base - 1 - number_node->digit;
+		}
+		nullNumber->head->digit = 1;
+		number->isNegative = false;
+		BigInt_add(number, nullNumber);
+		number->isNegative = true;
+	}
+	else if (signN * signI == -1)
+	{
+		number->isNegative = false;		
+	}
+	
+	number_node = number->head;
+	while(number->length > 1 && number_node->digit == 0)
+	{
+		number_node = number_node->next;
+		free(number_node->prev);
+		--(number->length);
+	}
+	number->head = number_node;
+	number->head->prev = NULL;
+	
+	BigInt_delete(nullNumber);
 	return;
 }
+
 void BigInt_subtract(struct BigInt *number, struct BigInt *decrement)
 {	
+	decrement->isNegative = !decrement->isNegative;
+	BigInt_add(number, decrement);
+	decrement->isNegative = !decrement->isNegative;
 	return;
 }
 void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
