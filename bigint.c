@@ -197,10 +197,11 @@ void BigInt_write(struct BigInt *number)
 		{
 			putc('-', stdout);
 		}
-		struct BigInt_Node *node = number->head;
+		printf("%ld", number->head->digit);
+		struct BigInt_Node *node = number->head->next;
 		for ( ; node != NULL; node = node->next)
 		{
-			printf("%.9ld ", node->digit);
+			printf("%.9ld", node->digit);
 		}
 	}
 	putc('\n', stdout);
@@ -367,8 +368,9 @@ void BigInt_subtract(struct BigInt *number, struct BigInt *decrement)
 
 
 
-void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
+void BigInt_multiply(struct BigInt **_number, struct BigInt *multiplier)
 {	
+	struct BigInt *number = *_number;
 	struct BigInt *result = BigInt_new();	
 	BigInt_pushBack(result, 0);	
 	struct BigInt_Node *tail = result->tail;
@@ -400,9 +402,8 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 
 	result->tail = tail;
 	result->isNegative = isNegative;
-	BigInt_delete(number);
-	number = BigInt_new();
-	*number = *result;
+	BigInt_delete(*_number);
+	*_number = result;
 	
 	return;
 }
@@ -413,7 +414,7 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 
 
 
-void BigInt_divide(struct BigInt *number, struct BigInt *divider)
+void BigInt_divide(struct BigInt **_number, struct BigInt *divider)
 {	
 	if (divider->length == 1)
 	{
@@ -426,6 +427,7 @@ void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 			return;
 		}
 	}
+	struct BigInt *number = *_number;
 	
 	char isNegative = ((number->isNegative) ^ (divider->isNegative)),
 		d_isNegative = divider->isNegative;
@@ -488,9 +490,8 @@ void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 	quotient->isNegative = isNegative;
 	divider->isNegative = d_isNegative;
 	
-	BigInt_delete(number);
-	number = BigInt_new();
-	*number = *quotient;
+	BigInt_delete(*_number);
+	*_number = quotient;
 	
 	BigInt_delete(residual);
 	BigInt_delete(_1);

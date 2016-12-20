@@ -38,5 +38,5 @@ bool BigInt_lessThan(struct BigInt *, struct BigInt *);
 
 void BigInt_add(struct BigInt *, struct BigInt *);
 void BigInt_subtract(struct BigInt *, struct BigInt *);
-void BigInt_multiply(struct BigInt *, struct BigInt *);
-void BigInt_divide(struct BigInt *, struct BigInt *);
+void BigInt_multiply(struct BigInt **, struct BigInt *);
+void BigInt_divide(struct BigInt **, struct BigInt *);

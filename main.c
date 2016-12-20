@@ -28,8 +28,23 @@ int main()
 {
 	struct Stack s = Stack_new();	
 	
+////////////////////////////////////////////////////////////////////////////
+	struct BigInt *num1 = BigInt_new();
+	struct BigInt *num2 = BigInt_new();
+	
+	BigInt_read(num1);
+	BigInt_read(num2);
+	
+	BigInt_multiply(&num1, num2);
+	
+	BigInt_write(num1);
+	
+	BigInt_delete(num1);
+	BigInt_delete(num2);
+////////////////////////////////////////////////////////////////////////////	
+	
 	int ch;
-	char isNegative;
+	char isNegative = 0;
 	val_t *first, second;
 	do
 	{
@@ -47,7 +62,7 @@ int main()
 			case '*' :	if((first = getArgs(&s, &second)) != NULL)
 						{
 							//*first *= second;
-							BigInt_multiply(*first, second);
+							BigInt_multiply(first, second);
 							BigInt_delete(second);
 						}
 						break;
@@ -55,7 +70,7 @@ int main()
 			case '/' :	if((first = getArgs(&s, &second)) != NULL)
 						{
 							//*first /= second;
-							BigInt_divide(*first, second);
+							BigInt_divide(first, second);
 							BigInt_delete(second);
 						}
 						break;
