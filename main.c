@@ -28,17 +28,8 @@ int main()
 {
 	struct Stack s = Stack_new();	
 	
-	
-	//printf("%d %d\n", isdigit('0'), isdigit('a'));
-	
-	struct BigInt *num = BigInt_new();
-	BigInt_read(num);
-	BigInt_write(num);
-	//printf("%d\n", num->length);
-	BigInt_delete(num);
-	
-	
-	int ch, sign = 1;
+	int ch;
+	char isNegative;
 	val_t *first, second;
 	do
 	{
@@ -47,25 +38,32 @@ int main()
 		{
 			case '+' :	if((first = getArgs(&s, &second)) != NULL)
 						{
-							*first += second;
+							//*first += second;
+							BigInt_add(*first, second);
+							BigInt_delete(second);
 						}
 						break;
 			
 			case '*' :	if((first = getArgs(&s, &second)) != NULL)
 						{
-							*first *= second;
+							//*first *= second;
+							BigInt_multiply(*first, second);
+							BigInt_delete(second);
 						}
 						break;
 			
 			case '/' :	if((first = getArgs(&s, &second)) != NULL)
 						{
-							*first /= second;
+							//*first /= second;
+							BigInt_divide(*first, second);
+							BigInt_delete(second);
 						}
 						break;
 			
 			case '=' :	if (!Stack_empty(&s))
 						{
-							printf("%d\n", *Stack_top(&s));
+							//printf("%d\n", *Stack_top(&s));
+							BigInt_write(*Stack_top(&s));
 						}
 						break;
 			
@@ -75,22 +73,24 @@ int main()
 							ungetc(ch, stdin);
 							if ((first = getArgs(&s, &second)) != NULL)
 							{
-								*first -= second;
+								//*first -= second;
+								BigInt_subtract(*first, second);
+								BigInt_delete(second);
 							}
 						}
 						else
 						{
-							sign = -1;
+							isNegative = 1;
 						}
 			
 			default :	if (isdigit(ch))
 						{
 							ungetc(ch, stdin);
-							int a;
-							scanf("%d", &a);
-							a *= sign;
-							sign = 1;
-							Stack_push(&s, a);
+							struct BigInt *num = BigInt_new();
+							BigInt_read(num);
+							num->isNegative = isNegative;
+							isNegative = 0;
+							Stack_push(&s, num);
 						}
 		}
 	}
@@ -99,7 +99,7 @@ int main()
 	
 	while (!Stack_empty(&s))
 	{
-		//BigNum_delete(*Stack_top(&s));
+		BigInt_delete(*Stack_top(&s));
 		Stack_pop(&s);
 	}
 	
