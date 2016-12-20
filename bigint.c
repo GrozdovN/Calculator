@@ -87,6 +87,23 @@ void BigInt_delete(struct BigInt *number)
 }
 
 
+void BigInt_copy(struct BigInt *from, struct BigInt *to)
+{
+	to->length = 0;
+	to->isNegative = from->isNegative; 
+	to->head = NULL;
+	to->tail = NULL;
+	
+	struct BigInt_Node *node = from->head;
+	for ( ; node != NULL; node = node->next)
+	{
+		BigInt_pushBack(to, node->digit);
+	}
+	
+	return;
+}
+
+
 
 
 
@@ -411,7 +428,8 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 }*/
 void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 {	
-	/*if (divider->length == 1)
+	/*
+	if (divider->length == 1)
 	{
 		if (divider->head->digit == 0)
 		{
@@ -420,7 +438,8 @@ void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 		return;
 	}
 	struct BigInt	*quotient = BigInt_new(),
-					*residual = BigInt_new();
+					*residual = BigInt_new(),
+					*qShifted = BigInt_new();
 	
 	
 	struct BigInt_Node *node = number->head;
@@ -428,7 +447,11 @@ void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 	{
 		BigInt_pushBack(quotient, 0);
 		BigInt_pushBack(residual, 0);
+		BigInt_add(residual, node->digit);
 		
+		long long	coef = 0, 
+					pow_10_i = BigInt_base;
+		//qShifted = 
 		
 	
 	}
