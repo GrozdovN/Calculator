@@ -75,10 +75,10 @@ void BigInt_delete(struct BigInt *number)
 {
 	if (number->tail != NULL)
 	{
-		for (struct BigInt_Node *node = number->head->next; node != NULL; )
+		struct BigInt_Node *node = number->head->next;
+		for ( ; node != NULL; node = node->next)
 		{
 			free(node->prev);
-			node = node->next;
 		}
 		free(number->tail);
 	}
@@ -156,7 +156,8 @@ void BigInt_read(struct BigInt *number)
 	
 	if (0 < i && i < 9 && number->length > 1)
 	{
-		for (struct BigInt_Node *node = number->tail->prev; node != NULL; )
+		struct BigInt_Node *node = number->tail->prev;
+		for ( ; node != NULL; node = node->prev)
 		{
 			digit_t pow10i = 1;
 			for(int j = 0; j < i; ++j)
@@ -165,7 +166,6 @@ void BigInt_read(struct BigInt *number)
 			}
 			node->next->digit += (node->digit % (BigInt_base / pow10i)) * pow10i;
 			node->digit /= (BigInt_base / pow10i);
-			node = node->prev;
 		}
 	}
 	
@@ -180,10 +180,10 @@ void BigInt_write(struct BigInt *number)
 		{
 			putc('-', stdout);
 		}
-		for (struct BigInt_Node *node = number->head; node != NULL; )
+		struct BigInt_Node *node = number->head;
+		for ( ; node != NULL; node = node->next)
 		{
 			printf("%.9ld ", node->digit);
-			node = node->next;
 		}
 	}
 	putc('\n', stdout);
@@ -198,11 +198,62 @@ void BigInt_write(struct BigInt *number)
 
 bool BigInt_equals(struct BigInt *left, struct BigInt *right)
 {	
+	if (left->length != right->length 
+		|| left->isNegative != right->isNegative)
+	{
+		return false;
+	}
+	struct BigInt_Node	*lNode = left->head,
+						*rNode = right->head;
+	while (lNode != NULL && rNode != NULL)
+	{
+		if (lNode->digit != rNode->digit)
+		{
+			return false;
+		}
+		lNode = lNode->next;
+		rNode = rNode->next;
+	}
+	
 	return true;
 }
 bool BigInt_lessThan(struct BigInt *left, struct BigInt *right)
 {	
-	return true;
+	if (left->length < right->length 
+		|| (left->isNegative && !right->isNegative))
+	{
+		return true;
+	}
+	if (left->length > right->length
+		|| (!left->isNegative && right->isNegative))
+	{
+		return false;
+	}
+	
+	struct BigInt_Node	*lNode = left->head,
+						*rNode = right->head;
+	bool t = true, f = false;
+	if (left->isNegative && right->isNegative)
+	{
+		t = false;
+		f = true;
+	}
+	
+	while (lNode != NULL && rNode != NULL)
+	{
+		if (lNode->digit < rNode->digit)
+		{
+			return t;
+		}
+		if (lNode->digit > rNode->digit)
+		{
+			return f;
+		}
+		lNode = lNode->next;
+		rNode = rNode->next;
+	}
+
+	return false;
 }
 
 
@@ -282,6 +333,7 @@ void BigInt_inc(struct BigInt *number, struct BigInt *increment, digit_t coeffic
 void BigInt_add(struct BigInt *number, struct BigInt *increment)
 {	
 	BigInt_inc(number, increment, 1);
+	return;
 }
 
 void BigInt_subtract(struct BigInt *number, struct BigInt *decrement)
@@ -334,7 +386,62 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 	
 	return;
 }
+
+
+
+
+
+
+
+/*void BigInt_getCoefficient(struct BigInt *coefficient, struct BigInt *result, 
+							struct BigInt *quotient, struct BigInt *residual)
+{
+	long long coef = 0;
+	result = BigInt_new();
+	BigInt_pushBack(result, 0);
+	
+	struct BigInt *qShifted = BigInt_new();
+	*qShifted = *quotient;
+	
+	//qShifted = quotient * 10^10
+	BigInt_pushBack(quotient, 0);
+
+
+	return;
+}*/
 void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 {	
+	/*if (divider->length == 1)
+	{
+		if (divider->head->digit == 0)
+		{
+			fprintf(stderr, "err: divide by 0.\n");	
+		}
+		return;
+	}
+	struct BigInt	*quotient = BigInt_new(),
+					*residual = BigInt_new();
+	
+	
+	struct BigInt_Node *node = number->head;
+	for ( ; node != NULL; node = node->next;)
+	{
+		BigInt_pushBack(quotient, 0);
+		BigInt_pushBack(residual, 0);
+		
+		
+	
+	}
+	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	return;
 }	
