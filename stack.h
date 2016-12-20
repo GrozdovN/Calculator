@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef int val_t;
+#include "bigint.h"
+
+
+typedef struct BigInt * val_t;
 
 struct Stack_Node 
 {
