@@ -27,6 +27,7 @@ struct BigInt
 
 struct BigInt * BigInt_new();
 void BigInt_delete(struct BigInt *);
+void BigInt_copy(struct BigInt *, struct BigInt *);
 
 void BigInt_read(struct BigInt *);
 void BigInt_write(struct BigInt *);
