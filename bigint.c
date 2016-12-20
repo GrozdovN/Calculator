@@ -32,7 +32,6 @@ struct BigInt_Node * BigInt_pushFront(struct BigInt *number, digit_t digit)
 	return node;
 }
 
-
 struct BigInt_Node * BigInt_pushBack(struct BigInt *number, digit_t digit)
 {
 	struct BigInt_Node	*node = (struct BigInt_Node *) malloc(sizeof(struct BigInt_Node));	
@@ -102,48 +101,49 @@ void BigInt_read(struct BigInt *number)
 	
 	char buf[10], c = 'a';
 	int i = 0;
-	bool leadingZero = true;
 	
 	c = getc(stdin);
 	if (c == '-')
 	{
 		number->isNegative = 1;
 	}
-	else 
+	else if (isspace(c))
+	{
+		return;
+	}
+	else
 	{
 		ungetc(c, stdin);
 	}
 	
+	do
+	{
+		c = getc(stdin);
+	}
+	while (c == '0');
+	if (isspace(c))
+	{
+		BigInt_pushBack(number, 0);
+		return;
+	}
+	ungetc(c, stdin);
 	
 	do
 	{
-		bool digitFinded = false;
-		for (i = 0 ; i < 9 && !isspace(c); )
+		i = 0;
+		do
 		{
-			buf[i] = c = getc(stdin);
-			if (!digitFinded && isdigit(c))
-			{
-				digitFinded = true;
-			}
-			i = ((!isdigit(c) || (leadingZero && c == '0')) ? i : i + 1);
-			if (leadingZero && isdigit(c) && c != '0')
-			{
-				leadingZero = false;
-			}
+			buf[i++] = c = getc(stdin);
 		}
-		if (isspace(buf[0]))
+		while (i < 9 && !isspace(c));
+		if (isspace(c))
 		{
-			if (digitFinded)
-			{
-				buf[0] = '0';
-				i = 2;
-			}
-			else 
-			{
-				return;
-			}
+			--i;
 		}
-		//i = ((i < 9) ? i - 1 : i);
+		if (i == 0)
+		{
+			return;
+		}
 		buf[i] = '\0';
 				
 		char *p;
@@ -182,7 +182,7 @@ void BigInt_write(struct BigInt *number)
 		}
 		for (struct BigInt_Node *node = number->head; node != NULL; )
 		{
-			printf("%ld ", node->digit);
+			printf("%.9ld ", node->digit);
 			node = node->next;
 		}
 	}
@@ -205,11 +205,21 @@ bool BigInt_lessThan(struct BigInt *left, struct BigInt *right)
 	return true;
 }
 
-void BigInt_add(struct BigInt *number, struct BigInt *increment)
+
+
+
+
+
+
+void BigInt_inc(struct BigInt *number, struct BigInt *increment, digit_t coefficient)
 {	
 	long long	res = 0, carry = 0, 
 				signN = (number->isNegative) ? -1 : 1, 
 				signI = (increment->isNegative) ? -1 : 1;
+	if (coefficient*signI <= 0)
+	{
+		return;
+	} 
 	if (signN * signI == 1)
 	{
 		signN = signI = 1;
@@ -219,7 +229,7 @@ void BigInt_add(struct BigInt *number, struct BigInt *increment)
 	struct BigInt *nullNumber = BigInt_new();
 	BigInt_pushBack(nullNumber, 0);
 	
-	while (number_node != NULL || increment_node != NULL || carry == 1)
+	while (number_node != NULL || increment_node != NULL || carry > 0)
 	{
 		if (increment_node == NULL)
 		{
@@ -229,7 +239,7 @@ void BigInt_add(struct BigInt *number, struct BigInt *increment)
 		{
 			number_node = BigInt_pushFront(number, 0);
 		}
-		res = signN*(number_node->digit) + signI*(increment_node->digit) + carry;
+		res = signN*(number_node->digit) + coefficient*signI*(increment_node->digit) + carry;
 		carry = (res + BigInt_base) / BigInt_base - 1;
 		number_node->digit = (res + BigInt_base) % BigInt_base;
 		
@@ -246,7 +256,7 @@ void BigInt_add(struct BigInt *number, struct BigInt *increment)
 		}
 		nullNumber->head->digit = 1;
 		number->isNegative = false;
-		BigInt_add(number, nullNumber);
+		BigInt_inc(number, nullNumber, 1);
 		number->isNegative = true;
 	}
 	else if (signN * signI == -1)
@@ -266,20 +276,65 @@ void BigInt_add(struct BigInt *number, struct BigInt *increment)
 	
 	BigInt_delete(nullNumber);
 	return;
+
+
+}
+void BigInt_add(struct BigInt *number, struct BigInt *increment)
+{	
+	BigInt_inc(number, increment, 1);
 }
 
 void BigInt_subtract(struct BigInt *number, struct BigInt *decrement)
 {	
 	decrement->isNegative = !decrement->isNegative;
-	BigInt_add(number, decrement);
+	BigInt_inc(number, decrement, 1);
 	decrement->isNegative = !decrement->isNegative;
 	return;
 }
+
+
+
+
+
+
+
 void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 {	
+	struct BigInt *result = BigInt_new();	
+	BigInt_pushBack(result, 0);	
+	struct BigInt_Node *tail = result->tail;
+	char isNegative = 0;	
+			
+	if (!(number->length == 1 && number->head->digit == 0)
+		&& !(multiplier->length == 1 && multiplier->head->digit == 0))
+	{
+		//printf("mdeeeeeeeems\n");
+		isNegative = ((number->isNegative) ^ (multiplier->isNegative));
+		number->isNegative = false;
+		multiplier->isNegative = false;
+			
+		struct BigInt_Node	*curNode = multiplier->tail;
+		for ( ; curNode != NULL; curNode = curNode->prev)
+		{
+			if (result->tail == NULL)
+			{
+				BigInt_pushFront(result, 0);
+				result->tail = result->head;
+			}
+			BigInt_inc(result, number, curNode->digit);
+			result->tail = result->tail->prev;
+		}
+	}
+
+	result->tail = tail;
+	result->isNegative = isNegative;
+	BigInt_delete(number);
+	number = BigInt_new();
+	*number = *result;
+	
 	return;
 }
 void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 {	
 	return;
-}
+}	
