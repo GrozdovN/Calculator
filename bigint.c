@@ -279,12 +279,12 @@ bool BigInt_lessThan(struct BigInt *left, struct BigInt *right)
 
 
 
-void BigInt_inc(struct BigInt *number, struct BigInt *increment, digit_t coefficient)
+void BigInt_inc(struct BigInt *number, struct BigInt *increment, long long coefficient)
 {	
 	long long	res = 0, carry = 0, 
 				signN = (number->isNegative) ? -1 : 1, 
 				signI = (increment->isNegative) ? -1 : 1;
-	if (coefficient*signI <= 0)
+	if (coefficient < -1)
 	{
 		return;
 	} 
@@ -372,13 +372,14 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 	struct BigInt *result = BigInt_new();	
 	BigInt_pushBack(result, 0);	
 	struct BigInt_Node *tail = result->tail;
-	char isNegative = 0;	
+	char isNegative = 0, m_isNegative = 0;	
 			
 	if (!(number->length == 1 && number->head->digit == 0)
 		&& !(multiplier->length == 1 && multiplier->head->digit == 0))
 	{
 		//printf("mdeeeeeeeems\n");
 		isNegative = ((number->isNegative) ^ (multiplier->isNegative));
+		m_isNegative = multiplier->isNegative;
 		number->isNegative = false;
 		multiplier->isNegative = false;
 			
@@ -394,6 +395,8 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 			result->tail = result->tail->prev;
 		}
 	}
+	
+	multiplier->isNegative = m_isNegative;
 
 	result->tail = tail;
 	result->isNegative = isNegative;
@@ -410,61 +413,89 @@ void BigInt_multiply(struct BigInt *number, struct BigInt *multiplier)
 
 
 
-/*void BigInt_getCoefficient(struct BigInt *coefficient, struct BigInt *result, 
-							struct BigInt *quotient, struct BigInt *residual)
-{
-	long long coef = 0;
-	result = BigInt_new();
-	BigInt_pushBack(result, 0);
-	
-	struct BigInt *qShifted = BigInt_new();
-	*qShifted = *quotient;
-	
-	//qShifted = quotient * 10^10
-	BigInt_pushBack(quotient, 0);
-
-
-	return;
-}*/
 void BigInt_divide(struct BigInt *number, struct BigInt *divider)
 {	
-	/*
 	if (divider->length == 1)
 	{
 		if (divider->head->digit == 0)
 		{
 			fprintf(stderr, "err: divide by 0.\n");	
 		}
-		return;
+		if (divider->head->digit <= 1)
+		{
+			return;
+		}
 	}
+	
+	char isNegative = ((number->isNegative) ^ (divider->isNegative)),
+		d_isNegative = divider->isNegative;
+	number->isNegative = false;
+	divider->isNegative = false;
+
 	struct BigInt	*quotient = BigInt_new(),
 					*residual = BigInt_new(),
-					*qShifted = BigInt_new();
+					*dShifted = BigInt_new(),
+					*_1       = BigInt_new(),
+					*tmp      = BigInt_new();
+	BigInt_pushBack(_1, 1);
+	BigInt_pushBack(tmp, 0);
+	BigInt_copy(divider, dShifted);	
 	
 	
 	struct BigInt_Node *node = number->head;
-	for ( ; node != NULL; node = node->next;)
+	for ( ; node != NULL; node = node->next)
 	{
 		BigInt_pushBack(quotient, 0);
 		BigInt_pushBack(residual, 0);
-		BigInt_add(residual, node->digit);
+		tmp->head->digit = node->digit;
+		BigInt_add(residual, tmp);
 		
 		long long	coef = 0, 
 					pow_10_i = BigInt_base;
-		//qShifted = 
+		BigInt_pushBack(dShifted, 0);
+
+		for (int i = 8; i >= 0; --i)
+		{
+			pow_10_i /= 10;
+			//dShifted /= 10;
+			dShifted->tail->digit /= 10;
+			long long _b = BigInt_base / 10; // = 100 000 000
+			struct BigInt_Node *dS_node = dShifted->tail->prev;
+			for ( ; dS_node != NULL; dS_node = dS_node->prev)
+			{
+				dS_node->next->digit += (dS_node->digit % 10) * _b;
+				dS_node->digit /= 10;
+			}
+			if (dShifted->head->digit == 0)
+			{
+				--(dShifted->length);
+				dShifted->head = dShifted->head->next;
+				free(dShifted->head->prev);
+				dShifted->head->prev = NULL;
+			}			
+			
+			while (!BigInt_lessThan(residual, dShifted))
+			{
+				coef += pow_10_i;
+				BigInt_subtract(residual, dShifted);
+			}
+		}
 		
-	
+		BigInt_inc(quotient, _1, coef);
 	}
-	*/
 	
 	
+	quotient->isNegative = isNegative;
+	divider->isNegative = d_isNegative;
 	
+	BigInt_delete(number);
+	number = BigInt_new();
+	*number = *quotient;
 	
-	
-	
-	
-	
-	
+	BigInt_delete(residual);
+	BigInt_delete(_1);
+	BigInt_delete(tmp);
+	BigInt_delete(dShifted);
 	
 	return;
 }	
