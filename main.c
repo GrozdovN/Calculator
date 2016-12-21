@@ -29,7 +29,7 @@ int main()
 	struct Stack s = Stack_new();	
 	
 ////////////////////////////////////////////////////////////////////////////
-	struct BigInt *num1 = BigInt_new();
+/*	struct BigInt *num1 = BigInt_new();
 	struct BigInt *num2 = BigInt_new();
 	
 	BigInt_read(num1);
@@ -40,7 +40,7 @@ int main()
 	BigInt_write(num1);
 	
 	BigInt_delete(num1);
-	BigInt_delete(num2);
+	BigInt_delete(num2);*/
 ////////////////////////////////////////////////////////////////////////////	
 	
 	int ch;
